@@ -1,9 +1,11 @@
 import React, { Component } from "react";
-import { Section } from "./Section/Section";
-import { ContactForm } from "./Contact/Contact";
 import Notiflix from "notiflix";
-import { Container } from './App.styled'
-
+import { Section } from "./Section/Section";
+import { Header } from './Header/Header'
+import { ContactForm } from "./Contact/Contact";
+import { ContactList } from "./ContactList/ContactList";
+import Filter from './Filter/Filter';
+import { Container } from './App.styled';
 
 export default class App extends Component {
 	state = {
@@ -31,12 +33,40 @@ export default class App extends Component {
 			});
 	};
 
+	deleteContact = contactId => {
+		this.setState(prevState => {
+			return {
+				contacts: prevState.contacts.filter(
+					contact => contact.id !== contactId
+				),
+			};
+		});
+	};
+
+	getVisibleContacts = () => {
+		const { contacts, filter } = this.state;
+		const normalizeFilter = filter.toLowerCase();
+		return contacts.filter(contact =>
+			contact.name.toLowerCase().includes(normalizeFilter));
+	};
+
+	changeFilter = e => {
+		this.setState({ filter: e.currentTarget.value.toLowerCase() });
+	};
+
 	render() {
+		const { filter } = this.state;
+		const visibleContacts = this.getVisibleContacts();
 		return (
 		<Container>
 			<Section title="Phonebook">
 				<ContactForm onAddContact={this.addContact} />
-
+					<Header title="Contacts" />
+					<Filter value={filter} onChange={this.changeFilter} />
+					<ContactList
+						contacts={visibleContacts}
+						onDelete={this.deleteContact}
+					/>
 			</Section>
 		</Container>
 		);
